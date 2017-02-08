@@ -427,17 +427,111 @@ public class XSSMultipartHttpServletRequest extends DefaultMultipartHttpServletR
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### filter xss:
+```code
+private final static List<String> MALICIOUS_STRING_LIST = new ArrayList<String>();
+	
+	static {
+		MALICIOUS_STRING_LIST.add("(?i)<.*?script.*?>.*?</.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<.*?script.*?\\s+.*?/script.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<.*?javascript:.*?>.*?</.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<.*?\\s+on.*?>.*?</.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<object.*?>.*?</object.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<.*?object:.*?>.*?</.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<applet.*?>.*?</applet.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<.*?applet:.*?>.*?</.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<embed.*?>.*?</embed.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<.*?embed:.*?>.*?</.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<form.*?>.*?</form.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<.*?form:.*?>.*?</.*?>");
+		MALICIOUS_STRING_LIST.add("(?i)<.*?\\f+on.*?>.*?</.*?>");
+		
+		MALICIOUS_STRING_LIST.add("(?i)onabort");
+		MALICIOUS_STRING_LIST.add("(?i)onactivate");
+		MALICIOUS_STRING_LIST.add("(?i)onafterprint");
+		MALICIOUS_STRING_LIST.add("(?i)onafterupdate");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforeactivate");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforecopy");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforecut");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforedeactivate");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforeeditfocus");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforepaste");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforeprint");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforeunload");
+		MALICIOUS_STRING_LIST.add("(?i)onbeforeupdate");
+		MALICIOUS_STRING_LIST.add("(?i)onblur");
+		MALICIOUS_STRING_LIST.add("(?i)onbounce");
+		MALICIOUS_STRING_LIST.add("(?i)oncellchange");
+		MALICIOUS_STRING_LIST.add("(?i)onchange");
+		MALICIOUS_STRING_LIST.add("(?i)onclick");
+		MALICIOUS_STRING_LIST.add("(?i)oncontextmenu");
+		MALICIOUS_STRING_LIST.add("(?i)oncontrolselect");
+		MALICIOUS_STRING_LIST.add("(?i)oncopy");
+		MALICIOUS_STRING_LIST.add("(?i)oncut");
+		MALICIOUS_STRING_LIST.add("(?i)ondataavailable");
+		MALICIOUS_STRING_LIST.add("(?i)ondatasetchanged");
+		MALICIOUS_STRING_LIST.add("(?i)ondatasetcomplete");
+		MALICIOUS_STRING_LIST.add("(?i)ondblclick");
+		MALICIOUS_STRING_LIST.add("(?i)ondeactivate");
+		MALICIOUS_STRING_LIST.add("(?i)ondrag");
+		MALICIOUS_STRING_LIST.add("(?i)ondragend");
+		MALICIOUS_STRING_LIST.add("(?i)ondragenter");
+		MALICIOUS_STRING_LIST.add("(?i)ondragleave");
+		MALICIOUS_STRING_LIST.add("(?i)ondragover");
+		MALICIOUS_STRING_LIST.add("(?i)ondragstart");
+		MALICIOUS_STRING_LIST.add("(?i)ondrop");
+		MALICIOUS_STRING_LIST.add("(?i)onerror");
+		MALICIOUS_STRING_LIST.add("(?i)onerrorupdate");
+		MALICIOUS_STRING_LIST.add("(?i)onfilterchange");
+		MALICIOUS_STRING_LIST.add("(?i)onfinish");
+		MALICIOUS_STRING_LIST.add("(?i)onfocus");
+		MALICIOUS_STRING_LIST.add("(?i)onfocusin");
+		MALICIOUS_STRING_LIST.add("(?i)onfocusout");
+		MALICIOUS_STRING_LIST.add("(?i)onhelp");
+		MALICIOUS_STRING_LIST.add("(?i)onkeydown");
+		MALICIOUS_STRING_LIST.add("(?i)onkeypress");
+		MALICIOUS_STRING_LIST.add("(?i)onkeyup");
+		MALICIOUS_STRING_LIST.add("(?i)onlayoutcomplete");
+		MALICIOUS_STRING_LIST.add("(?i)onload");
+		MALICIOUS_STRING_LIST.add("(?i)onlosecapture");
+		MALICIOUS_STRING_LIST.add("(?i)onmousedown");
+		MALICIOUS_STRING_LIST.add("(?i)onmouseenter");
+		MALICIOUS_STRING_LIST.add("(?i)onmouseleave");
+		MALICIOUS_STRING_LIST.add("(?i)onmousemove");
+		MALICIOUS_STRING_LIST.add("(?i)onmouseout");
+		MALICIOUS_STRING_LIST.add("(?i)onmouseover");
+		MALICIOUS_STRING_LIST.add("(?i)onmouseup");
+		MALICIOUS_STRING_LIST.add("(?i)onmousewheel");
+		MALICIOUS_STRING_LIST.add("(?i)onmove");
+		MALICIOUS_STRING_LIST.add("(?i)onmoveend");
+		MALICIOUS_STRING_LIST.add("(?i)onmovestart");
+		MALICIOUS_STRING_LIST.add("(?i)onpaste");
+		MALICIOUS_STRING_LIST.add("(?i)onpropertychange");
+		MALICIOUS_STRING_LIST.add("(?i)onreadystatechange");
+		MALICIOUS_STRING_LIST.add("(?i)onreset");
+		MALICIOUS_STRING_LIST.add("(?i)onresize");
+		MALICIOUS_STRING_LIST.add("(?i)onresizeend");
+		MALICIOUS_STRING_LIST.add("(?i)onresizestart");
+		MALICIOUS_STRING_LIST.add("(?i)onrowenter");
+		MALICIOUS_STRING_LIST.add("(?i)onrowexit");
+		MALICIOUS_STRING_LIST.add("(?i)onrowsdelete");
+		MALICIOUS_STRING_LIST.add("(?i)onrowsinserted");
+		MALICIOUS_STRING_LIST.add("(?i)onscroll");
+		MALICIOUS_STRING_LIST.add("(?i)onselect");
+		MALICIOUS_STRING_LIST.add("(?i)onselectionchange");
+		MALICIOUS_STRING_LIST.add("(?i)onselectstart");
+		MALICIOUS_STRING_LIST.add("(?i)onstart");
+		MALICIOUS_STRING_LIST.add("(?i)onstop");
+		MALICIOUS_STRING_LIST.add("(?i)onsubmit");
+		MALICIOUS_STRING_LIST.add("(?i)onunload");
+	};
+	
+	public static String filterXSS(String value) {
+		if (value != null) {
+			for (String maliciousString : MALICIOUS_STRING_LIST) {
+				value = value.replaceAll(maliciousString, "");
+			}
+		}
+		return value;
+	}
+```
